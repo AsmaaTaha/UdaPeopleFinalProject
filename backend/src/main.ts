@@ -51,4 +51,4 @@ async function bootstrap() {
   logger.log(`Listening on port ${config.PORT}.`);
 }
 
-bootstrap();
+bootstrap(); 
