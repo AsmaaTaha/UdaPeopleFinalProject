@@ -136,11 +136,12 @@ jobs:
               aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Project,Values=udapeople" \
-              --output text >> inventory
+              --output text > inventory
       - persist_to_workspace:
-          root: ~/
+          root: /.circleci/ansible/
           paths: 
-            - UdaPeopleFinalProject/.circleci/ansible/inventory.txt
+            - inventory
+
       - destroy-environment
 
   configure-infrastructure:
@@ -149,7 +150,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ~/
+          at: /.circleci/ansible/
       - add_ssh_keys:
           fingerprints: ["72:d6:f5:b8:15:55:68:d6:47:03:ee:ca:88:fd:33:12"] # You can get this ID in the section where you registered the SSH Key
       - run:
