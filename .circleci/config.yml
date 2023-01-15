@@ -135,25 +135,23 @@ jobs:
           command: |
               aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople" \
+              --filters "Name=tag:Project,Values=udapeople" \
               --output text >> inventory
       - persist_to_workspace:
           root: ~/
           paths: 
-            - project/.circleci/ansible/inventory.txt
-
+            - ansible/inventory.txt
       - destroy-environment
 
   configure-infrastructure:
     docker: 
       - image : python:3.7-alpine3.11
-      - image: amazon/aws-cli
     steps:
       - checkout
       - attach_workspace:
           at: ~/
       - add_ssh_keys:
-          fingerprints: ["72:d6:f5:b8:15:55:68:d6:47:03:ee:ca:88:fd:33:12"]
+          fingerprints: ["72:d6:f5:b8:15:55:68:d6:47:03:ee:ca:88:fd:33:12"] # You can get this ID in the section where you registered the SSH Key
       - run:
           name: Install dependencies
           command: |
@@ -161,7 +159,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -i inventory.txt  UdaPeopleFinalProject/.circleci/config-sample.yml 
       - destroy-environment     
 
       # Here's where you will add some code to rollback on failure                            
