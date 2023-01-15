@@ -66,7 +66,7 @@ jobs:
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  default2:
+  UdapeopleCIWorkflow:
     jobs:
       - build-frontend
       - build-backend
