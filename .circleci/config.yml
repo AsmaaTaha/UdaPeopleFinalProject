@@ -162,11 +162,7 @@ jobs:
           command: |
              apk --no-cache add py-pip
              pip install awscli
-      - run:
-          name: cat inventory file
-          command: |
-              cat inventory.txt   
-
+             
       - run:
           name: cat inventory file2
           command: |
