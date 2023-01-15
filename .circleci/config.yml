@@ -131,6 +131,11 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=udapeople
       - run:
+          name: adding inventory file
+          command: |
+                touch inventory
+                echo [all] > inventory     
+      - run:
           name: Add back-end ip to ansible inventory
           command: |
               aws ec2 describe-instances \
@@ -164,7 +169,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i inventory.txt .circleci/configure-server.yml 
+            ansible-playbook -i inventory.txt ~/.circleci/configure-server.yml 
       - destroy-environment     
 
       # Here's where you will add some code to rollback on failure                            
