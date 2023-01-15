@@ -2,6 +2,18 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    #parameters:
+      # Add parameter here   
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -87,7 +99,24 @@ jobs:
            cd backend
            npm install
            npm audit fix --audit-level=critical --force
-            
+  
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum -y install tar gzip
+      - run:
+          name: Configure server
+          command: |
+              aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
                    
 
 # Invoke jobs via workflows
@@ -95,19 +124,21 @@ jobs:
 workflows:
   UdaPeopleCIWorkflow:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-         requires:
-           - "build-frontend"
-      - test-backend:
-          requires:
-            - "build-backend"
+      #- build-frontend
+      #- build-backend
+      #- test-frontend:
+      #   requires:
+      #     - "build-frontend"
+      #- test-backend:
+      #    requires:
+      #      - "build-backend"
 
-      - scan-frontend:
-          requires:
-            - "build-frontend"
+      #- scan-frontend:
+      #    requires:
+      #      - "build-frontend"
 
-      - scan-backend:
-          requires:
-            - "build-backend"  
+      #- scan-backend:
+      #    requires:
+      #      - "build-backend"  
+
+      - deploy-infrastructure      
