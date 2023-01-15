@@ -181,9 +181,7 @@ jobs:
           name: Configure server
           command: |
             ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml 
-      - destroy-environment     
-
-      # Here's where you will add some code to rollback on failure                            
+      - destroy-environment                              
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
