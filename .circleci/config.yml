@@ -225,7 +225,8 @@ jobs:
           name: Install tar gzip
           command: |
             yum -y install tar gzip
-
+      - restore_cache:
+          keys: [frontend-build]
       - run:   
           name: Get backend url
           command: |
@@ -274,7 +275,8 @@ jobs:
             && pip3 install --no-cache-dir \
             awscli \
             && rm -rf /var/cache/apk/*
-             
+      - restore_cache:
+          keys: [backend-build]             
       - attach_workspace:
           at: ~/
       - run:
@@ -305,8 +307,8 @@ jobs:
 workflows:
   UdaPeopleCIWorkflow:
     jobs:
-   #   - build-frontend
-   #   - build-backend
+      - build-frontend
+      - build-backend
    #   - test-frontend:
    #       requires: [build-frontend]
    #   - test-backend:
