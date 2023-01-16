@@ -224,7 +224,7 @@ jobs:
       - run:
            name: Install AWS CLI
            command: |
-            RUN apk add --no-cache \
+            apk add --no-cache \
             python3 \
             py3-pip \
             && pip3 install --upgrade pip \
@@ -276,7 +276,7 @@ jobs:
       - run:
           name: Install AWS CLI
           command: |
-            RUN apk add --no-cache \
+            apk add --no-cache \
             python3 \
             py3-pip \
             && pip3 install --upgrade pip \
