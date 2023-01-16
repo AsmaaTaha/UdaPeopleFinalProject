@@ -180,10 +180,9 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i ~/inventory.txt .circleci/ansibleconfigure-server.yml 
-      - destroy-environment     
+            ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml 
+      - destroy-environment    
 
-  
   run-migrations:
      docker:
       - image: circleci/node:13.8.0
@@ -194,9 +193,12 @@ jobs:
           command: |
              cd backend
              npm install
-             npm run migrations
-
-
+             npm run migrations > migrations_dump.txt
+      - run:
+          name: cat the migration file
+          command: | 
+              cat migrations_dump.txt
+        
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
@@ -216,7 +218,7 @@ jobs:
           name: Get backend url
           command: |
             # your code here
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople")
+            export BACKEND_IP=$(aws ec2 describe-instances...............)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             cat frontend/.env
@@ -276,19 +278,19 @@ jobs:
 workflows:
   UdaPeopleCIWorkflow:
     jobs:
- #     - build-frontend
- #     - build-backend
- #     - test-frontend:
- #         requires: [build-frontend]
- #     - test-backend:
- #         requires: [build-backend]
- #     - scan-backend:
- #         requires: [build-backend]
- #     - scan-frontend:
- #         requires: [build-frontend]
- #     - deploy-infrastructure:
- #         requires: [test-frontend, test-backend, scan-frontend, scan-backend]
- #     - configure-infrastructure:
- #         requires: [deploy-infrastructure]   
-      - run-migrations 
- #         requires: [configure-infrastructure]    
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+           requires: [deploy-infrastructure]   
+      - run-migrations:
+          requires: [configure-infrastructure]    
