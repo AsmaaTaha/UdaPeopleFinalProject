@@ -237,9 +237,6 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-                yum update
-                curl –sL https://rpm.nodesource.com/setup_10.x | bash -
-                yum install –y nodejs
                 cd frontend
                 npm install
                 npm run build
@@ -265,16 +262,16 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["72:d6:f5:b8:15:55:68:d6:47:03:ee:ca:88:fd:33:12"] # You can get this ID in the section where you registered the SSH Key
-      - run:
-          name: Install AWS CLI
-          command: |
-            apk add --no-cache \
-            python3 \
-            py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install --no-cache-dir \
-            awscli \
-            && rm -rf /var/cache/apk/*
+ #     - run:
+ #         name: Install AWS CLI
+ #         command: |
+ #           apk add --no-cache \
+ #           python3 \
+ #           py3-pip \
+ #           && pip3 install --upgrade pip \
+ #           && pip3 install --no-cache-dir \
+ #           awscli \
+ #           && rm -rf /var/cache/apk/*
       - restore_cache:
           keys: [backend-build]             
       - attach_workspace:
