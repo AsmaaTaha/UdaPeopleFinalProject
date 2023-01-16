@@ -195,6 +195,10 @@ jobs:
              npm install
              npm run migrations > ~/migrations_dump.txt
       - run:
+          name: echo text in migration output file
+          command: |
+               echo  "has been executed successfully."  >> ~/migrations_dump.txt       
+      - run:
           name: cat the migration file
           command: | 
               cat ~/migrations_dump.txt
