@@ -194,11 +194,8 @@ jobs:
           command: |
              cd backend
              npm install
-             npm run migrations > migrations_dump.txt
-      - run:
-          name: Run migrations file
-          command: |
-               cat migrations_dump.txt
+             npm run migrations
+
 
   deploy-frontend:
     docker:
