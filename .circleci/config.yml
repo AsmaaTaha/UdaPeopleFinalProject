@@ -198,6 +198,7 @@ jobs:
           name: cat the migration file
           command: | 
               cat migrations_dump.txt
+   #   - destroy-environment          
         
   deploy-frontend:
     docker:
@@ -278,19 +279,19 @@ jobs:
 workflows:
   UdaPeopleCIWorkflow:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure-infrastructure:
-           requires: [deploy-infrastructure]   
-      - run-migrations:
-          requires: [configure-infrastructure]    
+ #     - build-frontend
+ #     - build-backend
+ #     - test-frontend:
+ #         requires: [build-frontend]
+ #     - test-backend:
+ #         requires: [build-backend]
+ #     - scan-backend:
+ #         requires: [build-backend]
+ #     - scan-frontend:
+ #         requires: [build-frontend]
+ #     - deploy-infrastructure:
+ #         requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+ #     - configure-infrastructure:
+ #          requires: [deploy-infrastructure]   
+      - run-migrations
+  #        requires: [configure-infrastructure]    
