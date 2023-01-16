@@ -284,6 +284,12 @@ jobs:
           name: Install dependencies nodjs npm
           command: |
             apk add --update nodejs npm    
+
+      - run:
+          name: Install dependencies pm2
+          command: |
+             npm install pm2 -g
+             
       - run:
           name: Deploy backend
           command: |
