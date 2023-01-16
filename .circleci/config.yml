@@ -221,17 +221,6 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-           name: Install AWS CLI
-           command: |
-            apk add --no-cache \
-            python3 \
-            py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install --no-cache-dir \
-            awscli \
-            && rm -rf /var/cache/apk/*
-            
       - run:              
           name: Install tar gzip
           command: |
@@ -241,6 +230,7 @@ jobs:
           name: Get backend url
           command: |
             # your code here
+            sudo yum install –y nodejs
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
