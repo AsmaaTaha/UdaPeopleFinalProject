@@ -252,7 +252,7 @@ jobs:
           root: ~/
           paths: 
             - inventory.txt     
-
+      - destroy-environment 
   deploy-backend:
     docker:
       - image : python:3.7-alpine3.11
@@ -260,16 +260,6 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["72:d6:f5:b8:15:55:68:d6:47:03:ee:ca:88:fd:33:12"] # You can get this ID in the section where you registered the SSH Key
- #     - run:
- #         name: Install AWS CLI
- #         command: |
- #           apk add --no-cache \
- #           python3 \
- #           py3-pip \
- #           && pip3 install --upgrade pip \
- #           && pip3 install --no-cache-dir \
- #           awscli \
- #           && rm -rf /var/cache/apk/*
       - restore_cache:
           keys: [backend-build]             
       - attach_workspace:
@@ -289,7 +279,7 @@ jobs:
           name: Install dependencies pm2
           command: |
              npm install pm2 -g
-             
+
       - run:
           name: Deploy backend
           command: |
@@ -307,7 +297,7 @@ jobs:
               npm install
               pm2 stop default
               pm2 start npm -- start        
-        
+      - destroy-environment   
       # Here's where you will add some code to rollback on failure         
 
 
@@ -318,20 +308,20 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-   #   - test-frontend:
-   #       requires: [build-frontend]
-   #   - test-backend:
-   #       requires: [build-backend]
-   #   - scan-backend:
-   #       requires: [build-backend]
-   #   - scan-frontend:
-   #       requires: [build-frontend]
-   #   - deploy-infrastructure:
-   #       requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-   #   - configure-infrastructure:
-   #        requires: [deploy-infrastructure]    
-   #   - run-migrations:
-   #       requires: [configure-infrastructure]
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+           requires: [deploy-infrastructure]    
+      - run-migrations:
+          requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [build-frontend]
       - deploy-backend:
