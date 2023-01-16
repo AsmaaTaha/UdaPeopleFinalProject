@@ -230,7 +230,6 @@ jobs:
           name: Get backend url
           command: |
             # your code here
-            sudo yum install –y nodejs
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
@@ -238,6 +237,7 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
+                yum install –y nodejs
                 cd frontend
                 npm install
                 npm run build
