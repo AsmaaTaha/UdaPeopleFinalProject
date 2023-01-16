@@ -238,8 +238,10 @@ jobs:
           name: Deploy frontend objects
           command: |
                 cd frontend
-                tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-                aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+                npm install
+                npm run build
+                tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz node_modules
+                aws s3 cp node_modules s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure      
       - run:
           name: Add back-end ip to ansible inventory
@@ -278,6 +280,8 @@ jobs:
           name: Deploy backend
           command: |
              cd backend
+             npm i
+             npm run build
              cd ..
              # Zip the directory
              tar -C backend -czvf artifact.tar.gz .
