@@ -134,7 +134,7 @@ jobs:
           name: adding inventory file
           command: |
                 touch inventory
-                echo [all] > ~/inventory     
+                echo [web] > ~/inventory     
       - run:
           name: Add back-end ip to ansible inventory
           command: |
