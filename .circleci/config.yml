@@ -238,8 +238,8 @@ jobs:
           name: Deploy frontend objects
           command: |
                 cd frontend
-                tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz * /home/circleci/project/frontend/node_modules
-                aws s3 cp * /home/circleci/project/frontend/node_modules s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+                tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz * /home/circleci/project/frontend
+                aws s3 cp * /home/circleci/project/frontend s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure      
       - run:
           name: Add back-end ip to ansible inventory
@@ -286,7 +286,7 @@ jobs:
              cd backend
              cd ..
              # Zip the directory
-             tar -C backend -czvf artifact.tar.gz .
+             tar -czvf artifact.tar.gz backend 
              cd .circleci/ansible
              echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
