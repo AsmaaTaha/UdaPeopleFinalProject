@@ -200,18 +200,13 @@ jobs:
 
   run-migrations:
      docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.7-alpine3.11
      steps:
       - checkout
       - run:
-          name: Install AWS CLI
-          command: |
-             apk --no-cache add py-pip
-             pip install awscli    
-      - run:
           name: Install dependencies
           command: |
-            apk add --update --no-cache tar gzip nodejs npm curl
+            apk add --update --no-cache tar gzip nodejs npm curl aws-cli
       - restore_cache:
           keys: [backend-build]    
       - run:
@@ -239,10 +234,15 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:              
-          name: Install tar gzip
+      - run:
+          name: Install AWS CLI
           command: |
-            yum -y install tar gzip
+             apk --no-cache add py-pip
+             pip install awscli    
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update --no-cache tar gzip nodejs npm
       - restore_cache:
           keys: [frontend-build]
       - run:   
