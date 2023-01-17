@@ -149,11 +149,11 @@ jobs:
               aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
-              --output text >> ~/inventory.txt
+              --output text >> ~/project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths: 
-            - inventory.txt
+            - project/.circleci/ansible/inventory.txt
       - destroy-environment
 
   configure-infrastructure:
@@ -185,11 +185,12 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml 
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml 
       - persist_to_workspace:
           root: ~/
           paths: 
-            - inventory.txt      
+            - project/backend   
       - destroy-environment    
 
   run-migrations:
@@ -210,7 +211,7 @@ jobs:
           name: Run migrations
           command: |
              cd backend
-             npm run migrations >> ~/migrations_dump.txt
+             npm run migrations >> migrations_dump.txt
       - run:
           name: cat the migration file
           command: | 
@@ -218,7 +219,7 @@ jobs:
       - run:
           name: Send migration status to kvdb.io
           command: |   
-              if grep -q "success" ~/migrations_dump.txt
+              if grep -q "success" ~/project/backend/migrations_dump.txt
               then
               echo "migration success"
               curl --insecure https://kvdb.io/Sw2exr5x8aEpTwMN6pxf7q/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
@@ -265,18 +266,6 @@ jobs:
                 npm run build
                 tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
                 aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      # Here's where you will add some code to rollback on failure      
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-              aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople" \
-              --output text >> ~/inventory.txt
-      - persist_to_workspace:
-          root: ~/
-          paths: 
-            - inventory.txt     
       - destroy-environment 
       - revert-migrations 
 
@@ -378,7 +367,7 @@ jobs:
              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
              --no-paginate --output text)
              echo OldWorkflowID: "${OldWorkflowID}"
-             
+
              aws cloudformation deploy \
              --template-file .circleci/files/cloudfront.yml \
              --stack-name InitialStack \
