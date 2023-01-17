@@ -233,13 +233,18 @@ jobs:
         
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - run:
+          name: Install AWS CLI
+          command: |
+             apk --no-cache add py-pip
+             pip install awscli    
+      - run:
           name: Install dependencies
           command: |
-            yum -y install tar gzip nodejs npm
+            apk add --update --no-cache tar gzip nodejs npm
       - restore_cache:
           keys: [frontend-build]
       - run:   
@@ -255,6 +260,8 @@ jobs:
           name: Deploy frontend objects
           command: |
                 cd frontend
+                npm install 
+                npm run build
                 tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
                 aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure      
@@ -271,6 +278,7 @@ jobs:
             - inventory.txt     
       - destroy-environment 
       - revert-migrations 
+
   deploy-backend:
     docker:
       - image : python:3.7-alpine3.11
