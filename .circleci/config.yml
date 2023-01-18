@@ -193,6 +193,7 @@ jobs:
           paths: 
             - project/backend   
       - destroy-environment    
+      - revert-migrations  
 
   run-migrations:
      docker:
@@ -214,10 +215,6 @@ jobs:
              cd backend
              npm run migrations >> migrations_dump.txt
       - run:
-          name: cat the migration file
-          command: | 
-              cat ~/migrations_dump.txt
-      - run:
           name: Send migration status to kvdb.io
           command: |   
               if grep -q "success" ~/project/backend/migrations_dump.txt
@@ -228,8 +225,8 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths: 
-            - inventory.txt
-            - migrations_dump.txt     
+            - ~/project/backend/inventory.txt
+            - ~/project/backend/migrations_dump.txt     
 
       - destroy-environment 
       - revert-migrations    
@@ -349,8 +346,8 @@ jobs:
               else
                return 1
               fi
- #     - destroy-environment 
- #     - revert-migrations 
+      - destroy-environment 
+      - revert-migrations 
 
   cloudfront-update:
     docker:
