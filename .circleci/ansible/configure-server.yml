@@ -3,7 +3,6 @@
 - name: "configuration play." 
   hosts: web
   user: ubuntu
-  IdentitiesOnly: yes
   IdentitiesOnly: true
   become: true
   become_method: sudo
