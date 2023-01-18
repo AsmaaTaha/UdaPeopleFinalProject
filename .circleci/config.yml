@@ -239,10 +239,8 @@ jobs:
       - run:
           name: Install AWS CLI
           command: |
-             sudo apt install -y tar gzip curl 
-             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-             unzip -qq awscliv2.zip
-             sudo ./aws/install    
+             apk --no-cache add py-pip
+             pip install awscli   
       - run:
           name: Install dependencies
           command: |
