@@ -235,13 +235,14 @@ jobs:
     docker:
       - image: python:3.7-alpine3.11
     steps:
-      - checkout
+      - checkout 
       - run:
           name: Install AWS CLI
           command: |
-             apk --no-cache add py-pip
-             pip install awscli
-             pip3 -U paramiko    
+             sudo apt install -y tar gzip curl 
+             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+             unzip -qq awscliv2.zip
+             sudo ./aws/install    
       - run:
           name: Install dependencies
           command: |
