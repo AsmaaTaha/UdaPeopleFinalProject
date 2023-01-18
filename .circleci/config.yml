@@ -243,7 +243,8 @@ jobs:
           name: Install AWS CLI
           command: |
              apk --no-cache add py-pip
-             pip install awscli    
+             pip install awscli
+             pip3 -U paramiko    
       - run:
           name: Install dependencies
           command: |
@@ -306,8 +307,7 @@ jobs:
              mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
              cd .circleci/ansible
              echo "Contents  of the inventory.txt file is -------"
-             cat ~/inventory.txt
-             ansible-playbook -i ~/inventory.txt deploy-backend.yml      
+             ansible-playbook -i inventory.txt deploy-backend.yml      
       - destroy-environment 
       - revert-migrations 
       # Here's where you will add some code to rollback on failure         
