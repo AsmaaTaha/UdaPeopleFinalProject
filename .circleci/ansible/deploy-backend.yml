@@ -12,7 +12,12 @@
 
   # Get the environment variables from CircleCI and add to the EC2 instance
   pre_tasks:
-    - name: Loading environment variables
+  
+    - name: "waiting 600 seconds"
+      pause: 
+        seconds: 120
+        
+    - name: "Loading environment variables"
       tags: always
       set_fact:
         TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"
