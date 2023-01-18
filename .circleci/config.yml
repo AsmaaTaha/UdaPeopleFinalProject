@@ -163,7 +163,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["72:d6:f5:b8:15:55:68:d6:47:03:ee:ca:88:fd:33:12"] 
+          fingerprints: ["24:e1:8f:cf:d6:b5:3a:72:95:af:04:fa:00:e2:60:44"] 
       - run:
           name: Install AWS CLI
           command: |
@@ -277,7 +277,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["72:d6:f5:b8:15:55:68:d6:47:03:ee:ca:88:fd:33:12"]
+          fingerprints: ["24:e1:8f:cf:d6:b5:3a:72:95:af:04:fa:00:e2:60:44"]
       - run:
           name: Install AWS CLI
           command: |
