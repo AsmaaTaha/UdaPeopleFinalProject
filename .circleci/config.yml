@@ -423,12 +423,18 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints:
-            - 'ab:52:25:68:df:4c:3a:d5:48:18:55:d8:f9:3b:df:de'
+          fingerprints: ["24:e1:8f:cf:d6:b5:3a:72:95:af:04:fa:00:e2:60:44"] 
       - run:
           name: Install dependencies
           command: |
-            apk add --update aws-cli tar gzip ansible nodejs npm
+            apk add --update --no-cache tar gzip ansible nodejs npm curl openssh
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+              aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople" \
+              --output text >> ~/project/.circleci/ansible/inventory.txt       
       - attach_workspace:
           at: ~/
       - run:
@@ -442,29 +448,30 @@ jobs:
 workflows:
   UdaPeopleCIWorkflow:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure-infrastructure:
-           requires: [deploy-infrastructure]    
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]    
+    #  - build-frontend
+    #  - build-backend
+    #  - test-frontend:
+    #      requires: [build-frontend]
+    #  - test-backend:
+    #      requires: [build-backend]
+    #  - scan-backend:
+    #      requires: [build-backend]
+    #  - scan-frontend:
+    #      requires: [build-frontend]
+    #  - deploy-infrastructure:
+    #      requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+    #  - configure-infrastructure:
+    #       requires: [deploy-infrastructure]    
+    #  - run-migrations:
+    #      requires: [configure-infrastructure]
+    #  - deploy-frontend:
+    #      requires: [run-migrations]
+    #  - deploy-backend:
+    #      requires: [run-migrations]
+    #  - smoke-test:
+    #      requires: [deploy-backend, deploy-frontend]
+    #  - cloudfront-update:
+    #      requires: [smoke-test]
+    #  - cleanup:
+    #      requires: [cloudfront-update]   
+       - add-prometheus-node-exporter
