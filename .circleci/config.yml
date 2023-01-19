@@ -384,7 +384,7 @@ jobs:
       - destroy-environment 
       - revert-migrations  
 
-cleanup:
+  cleanup:
     docker:
       - image: python:3.7-alpine3.11
     steps:
@@ -418,7 +418,7 @@ cleanup:
       - destroy-environment 
       - revert-migrations      
 
-add-prometheus-node-exporter:
+  add-prometheus-node-exporter:
     docker:
       - image: python:3.7-alpine3.16
     steps:
@@ -468,4 +468,4 @@ workflows:
       - cloudfront-update:
           requires: [smoke-test]
       - cleanup:
-          requires: [cloudfront-update]     
+          requires: [cloudfront-update]    
