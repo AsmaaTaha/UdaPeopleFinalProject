@@ -369,10 +369,6 @@ jobs:
     steps:
       - checkout 
       - run:
-          name: Install dependencies
-          command: |
-             yum install -y npm nodejs
-      - run:
           name: Update cloudfront distribution
           command: |
              export OldWorkflowID=$(aws cloudformation \
