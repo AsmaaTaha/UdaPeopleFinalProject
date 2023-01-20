@@ -450,7 +450,9 @@ jobs:
 
 
 workflows:
+  
   UdaPeopleCIWorkflow:
+
     jobs:
       - build-frontend:
           filters:
@@ -480,21 +482,21 @@ workflows:
           filters:
             branches:
               only: [ dev-branch ]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure-infrastructure:
-           requires: [deploy-infrastructure]    
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]   
-      - add-prometheus-node-exporter:
-          requires: [cleanup] 
+   #   - deploy-infrastructure:
+   #       requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+   #   - configure-infrastructure:
+   #        requires: [deploy-infrastructure]    
+   #   - run-migrations:
+   #       requires: [configure-infrastructure]
+   #   - deploy-frontend:
+   #       requires: [run-migrations]
+   #   - deploy-backend:
+   #       requires: [run-migrations]
+   #   - smoke-test:
+   #       requires: [deploy-backend, deploy-frontend]
+   #   - cloudfront-update:
+   #       requires: [smoke-test]
+   #   - cleanup:
+   #       requires: [cloudfront-update]   
+   #   - add-prometheus-node-exporter:
+   #       requires: [cleanup] 
