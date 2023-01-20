@@ -4,7 +4,7 @@ version: 2.1
 
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID. 
     steps:
       - run:
           name: Destroy the environement
@@ -21,14 +21,11 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-              SUCCESS=$(curl --insecure  https://kvdb.io/Sw2exr5x8aEpTwMN6pxf7q/migration_${CIRCLE_WORKFLOW_ID:0:7})
-              if (( $SUCCESS == 1 ));
-              then
                  cd backend
                  npm install
                  npm run build
                  npm run migrations:revert
-              fi   
+
 
 jobs:
   build-frontend: 
@@ -219,13 +216,13 @@ jobs:
           name: Run migrations
           command: |
              cd backend
+             cat .env
              npm install 
-             npm run build
              npm run migrations > migrations_dump.txt
       - run: 
           name: cat migration
           command: |
-              cat  backend/migrations_dump.txt       
+              cat  ~/project/backend/migrations_dump.txt   
       - run:
           name: Send migration status to kvdb.io
           command: |   
@@ -343,7 +340,7 @@ jobs:
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             export API_URL="https://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            if curl "${API_URL}/api/status" | grep "ok"
+            if curl -s "${API_URL}/api/status" | grep "ok"
              then
               return 0
              else
@@ -352,7 +349,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-              URL="https://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+              URL="https://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"            
               echo ${URL} 
               if curl -s ${URL} | grep "Welcome"
               then
@@ -408,7 +405,7 @@ jobs:
       - run:
           name: Remove old stacks ans s3 bucket
           command: |
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
             then
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
@@ -423,12 +420,25 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints:
-            - 'ab:52:25:68:df:4c:3a:d5:48:18:55:d8:f9:3b:df:de'
+          fingerprints: ["24:e1:8f:cf:d6:b5:3a:72:95:af:04:fa:00:e2:60:44"] 
       - run:
           name: Install dependencies
           command: |
-            apk add --update aws-cli tar gzip ansible nodejs npm
+            apk add --update --no-cache tar gzip ansible nodejs npm curl openssh
+
+      - run:
+          name: Install AWS CLI
+          command: |
+             apk --no-cache add py-pip
+             pip install awscli    
+
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+              aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople" \
+              --output text >> ~/project/.circleci/ansible/inventory.txt       
       - attach_workspace:
           at: ~/
       - run:
@@ -436,35 +446,57 @@ jobs:
           command: |
             cd .circleci/ansible
             cat inventory.txt
-            ansible-playbook -i inventory.txt node-exporter.yml           
+            ansible-playbook -i inventory.txt node_exporter.yml           
 
 
 workflows:
+  
   UdaPeopleCIWorkflow:
+
     jobs:
-      - build-frontend
-      - build-backend
+      - build-frontend:
+          filters:
+            branches:
+              only: [ dev-branch ]
+      - build-backend:
+          filters:
+            branches:
+              only: [ dev-branch ]
       - test-frontend:
           requires: [build-frontend]
+          filters:
+            branches:
+              only: [ dev-branch ]
       - test-backend:
           requires: [build-backend]
+          filters:
+            branches:
+              only: [ dev-branch ]
       - scan-backend:
           requires: [build-backend]
+          filters:
+            branches:
+              only: [ dev-branch ]
       - scan-frontend:
           requires: [build-frontend]
-    #  - deploy-infrastructure:
-    #      requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-    #  - configure-infrastructure:
-    #       requires: [deploy-infrastructure]    
-    #  - run-migrations:
-    #      requires: [configure-infrastructure]
-    #  - deploy-frontend:
-    #      requires: [run-migrations]
-    #  - deploy-backend:
-    #      requires: [run-migrations]
-    #  - smoke-test:
-    #      requires: [deploy-backend, deploy-frontend]
-    #  - cloudfront-update:
-    #      requires: [smoke-test]
-    #  - cleanup:
-    #      requires: [cloudfront-update]    
+          filters:
+            branches:
+              only: [ dev-branch ]
+   #   - deploy-infrastructure:
+   #       requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+   #   - configure-infrastructure:
+   #        requires: [deploy-infrastructure]    
+   #   - run-migrations:
+   #       requires: [configure-infrastructure]
+   #   - deploy-frontend:
+   #       requires: [run-migrations]
+   #   - deploy-backend:
+   #       requires: [run-migrations]
+   #   - smoke-test:
+   #       requires: [deploy-backend, deploy-frontend]
+   #   - cloudfront-update:
+   #       requires: [smoke-test]
+   #   - cleanup:
+   #       requires: [cloudfront-update]   
+   #   - add-prometheus-node-exporter:
+   #       requires: [cleanup] 
