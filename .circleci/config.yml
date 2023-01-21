@@ -393,7 +393,7 @@ jobs:
       - run:       
           name: Get old stack workflow id and remove the old stack
           command: |
-             export OldWorkflowID="udapeople-e38533b"
+             export OldWorkflowID="udapeople-051727f"
 
              echo OldWorkflowID: "${OldWorkflowID}"
 
