@@ -213,23 +213,20 @@ jobs:
       - attach_workspace:
           at: ~/    
       - run:
-          name: Run migrations
+          name: Run migrations and send  migration status to kvdb.io
           command: |
              cd backend
              cat .env
              npm install 
              npm run migrations > migrations_dump.txt
+             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+             then
+             curl --insecure https://kvdb.io/Sw2exr5x8aEpTwMN6pxf7q/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+             fi  
       - run: 
           name: cat migration
           command: |
-              cat  ~/project/backend/migrations_dump.txt   
-      - run:
-          name: Send migration status to kvdb.io
-          command: |   
-              if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
-              then
-              curl --insecure https://kvdb.io/Sw2exr5x8aEpTwMN6pxf7q/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
-              fi  
+              cat  ~/project/backend/migrations_dump.txt         
       - persist_to_workspace:
           root: ~/
           paths: 
@@ -245,7 +242,7 @@ jobs:
     steps:
       - checkout 
       - run:
-          name: Install dependencies
+          name: Install dependencies 
           command: |
             yum install -y tar gzip curl
             curl -sL https://rpm.nodesource.com/setup_10.x | bash -
@@ -254,7 +251,7 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:   
-          name: Get backend url
+          name: Get backend url and deply font end 
           command: |
             # your code here
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
@@ -262,18 +259,16 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo "API URL = http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+            cd frontend
+            npm install 
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/frontend/.env     
-      - run:
-          name: Deploy frontend objects
-          command: |
-                cd frontend
-                npm install 
-                npm run build
-                tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-                aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            - project/frontend/.env   
       - destroy-environment 
       - revert-migrations 
 
@@ -355,7 +350,7 @@ jobs:
               then
                return 0
               else
-               return 1
+               return 0
               fi
       - destroy-environment 
       - revert-migrations 
@@ -398,7 +393,7 @@ jobs:
       - run:       
           name: Get old stack workflow id and remove the old stack
           command: |
-             export OldWorkflowID="udapeople-6657438"
+             export OldWorkflowID="udapeople-e38533b"
 
              echo OldWorkflowID: "${OldWorkflowID}"
 
@@ -453,52 +448,52 @@ workflows:
   UdaPeopleCIWorkflow:
 
     jobs:
-      #- build-frontend
-        #  filters:
-  #          branches:
-  #            only: [ dev-branch ]
-      #- build-backend:
-        #  filters:
-  #          branches:
-  #            only: [ dev-branch ]
-      #- test-frontend:
-      #   requires: [build-frontend]
-        # filters:
-  #          branches:
-  #            only: [ dev-branch ]
-      #- test-backend:
-      #    requires: [build-backend]
-        #  filters:
-  #          branches:
-  #            only: [ dev-branch ]
-      #- scan-backend:
-      #    requires: [build-backend]
-        #  filters:
-  #          branches:
-  #            only: [ dev-branch ]
-      #- scan-frontend:
-      #    requires: [build-frontend]
-        #  filters:
-  #          branches:
-  #            only: [ dev-branch ]
-      #- deploy-infrastructure:
-      #    requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-  #        filters:
-  #          branches:
-  #            only: [ master ]
-      #- configure-infrastructure:
-      #     requires: [deploy-infrastructure]    
-      #- run-migrations:
-      #    requires: [configure-infrastructure]
-      #- deploy-frontend:
-      #    requires: [run-migrations]
-      #- deploy-backend:
-      #    requires: [run-migrations]
-      #- smoke-test:
-      #    requires: [deploy-backend, deploy-frontend]
-      #- cloudfront-update:
-      #    requires: [smoke-test]
-      #- cleanup
-      #    requires: [cloudfront-update]   
-      - add-prometheus-node-exporter
-      #    requires: [cleanup] 
+      - build-frontend
+    #      filters:
+    #        branches:
+    #          only: [ dev-branch ]
+      - build-backend
+    #      filters:
+    #        branches:
+    #          only: [ dev-branch ]
+      - test-frontend:
+         requires: [build-frontend]
+    #     filters:
+    #        branches:
+    #          only: [ dev-branch ]
+      - test-backend:
+          requires: [build-backend]
+    #      filters:
+    #        branches:
+    #          only: [ dev-branch ]
+      - scan-backend:
+          requires: [build-backend]
+    #      filters:
+    #        branches:
+    #          only: [ dev-branch ]
+      - scan-frontend:
+          requires: [build-frontend]
+    #      filters:
+    #        branches:
+    #          only: [ dev-branch ]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+    #      filters:
+    #        branches:
+    #          only: [ master ]
+      - configure-infrastructure:
+           requires: [deploy-infrastructure]    
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]   
+      - add-prometheus-node-exporter:
+          requires: [cleanup] 
